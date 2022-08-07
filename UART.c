@@ -6,8 +6,8 @@
  */ 
 #include <UART.h>
 #include <avr/interrupt.h>
-
-RX_BUFFER_SIZE  
+#define F_CPU 16000000ul
+#define RX_BUFFER_SIZE 128
 
 volatile static uint8_t rx_buffer[RX_BUFFER_SIZE] = {0};
 volatile static uint16_t rx_count = 0;
@@ -40,12 +40,11 @@ void uart_init(uint32_t baud, uint8_t highspeed)
 		UCSR0A |= (1 << U2X0);
 	}
 	
-	//calculate baud rate 
+	//============calculate baud rate========= 
 	baud = (F_CPU/(speed*baud)) - 1;
-	
 	UBRR0H = (baud >> 8);
 	UBRR0L = baud;
-	
+	/*======= transmit/interrupt transmit and receive/interrupt receive enable =======*/
 	UCSR0B = (1 << RXEN0)|(1 << TXEN0)|(1 << RXCIE0)|(1 << TXCIE0);
 	
 }
@@ -71,7 +70,7 @@ void uart_send_string(uint8_t *c)
 	do{
 		uart_send_byte(c[i]);
 		i++;
-	}while(c[i] != "\0");
+	}while(c[i] != '\0');
 	uart_send_byte(c[i]);
 		
 }
